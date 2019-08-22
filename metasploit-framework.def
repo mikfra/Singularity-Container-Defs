@@ -1,0 +1,15 @@
+Bootstrap: docker
+From: ubuntu:latest
+
+%post
+	apt-get update -y
+	apt-get install curl wget nmap netcat gnupg2 -y
+	curl "https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb" > ./msfinstall
+	echo 'deb http://apt.metasploit.com/ lucid main' > /etc/apt/sources.list.d/metasploit-framework.list
+	wget  http://apt.metasploit.com/metasploit-framework.gpg.key	
+	apt-key add metasploit-framework.gpg.key
+	chmod 755 ./msfinstall
+	sh ./msfinstall
+
+%runscript
+	msfconsole

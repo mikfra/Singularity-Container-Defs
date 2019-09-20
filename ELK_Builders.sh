@@ -1,12 +1,11 @@
-#!/bin/bash -x
-
-###This script will setup a quick elasticsearch,kibana, & logstash instance
+#!/bin/bash
 
 #Check to see if singularity is installed 
 #command -v singularity >/dev/null 2>&1 || {echo >&2 "Singularity Not installed"; exit 1; }
 
 declare -a ELK=("elasticsearch" "logstash" "kibana")
 declare -a FUNCT=("make_elasticsearch" "make_logstash" "make_kibana")
+
 
 #Make root RunDir and root directories for singularity containers
 read -p "Enter the Directory you would like to install Elasticsearch[Default=  /containers]: " read_dir 
@@ -15,6 +14,7 @@ echo "[Directory= $read_dir]"
 read -p "What user will be running the containers. i.e. not root?[Default= nobody]"
 user=${user:-"user"}
 echo "[User is $user]"
+
 
 singularity_cp() {
 gdir=$read_dir/$x/rundir
@@ -40,9 +40,34 @@ singularity instance start \\
 ecpdir=(config data logs)
 cdir=/usr/share/elasticsearch
 for i in "${ecpdir[@]}"; do
-	com="cp -rf $cdir/$i /temp"
-	singularity_cp
+	if [ -d "$read_dir/$x/rundir/$i" ]; then
+		echo "[$i Directory Already Exist]"
+	else
+		com="cp -rf $cdir/$i /temp"
+		singularity_cp
+	fi
 done
+}
+
+config_yml_elasticsearch() {
+if [ -f "/hello/elasticsearch/rundir/config/elasticsearch.yml"]; then
+	echo [Elasticsearch.yml exists]
+	echo"
+	cluster.name: "${HOSTNAME}_cluster"
+	network.host: 0.0.0.0
+	node.master: true
+	node.name: "${HOSTNAME}_master"
+	cluster.initial_master_nodes:
+	    - 0.0.0.0
+	discovery.zen.minimum_master_nodes: 1
+	discovery.zen.ping.unicast.hosts: ["0.0.0.0:9300"]
+	path: 
+	    logs: /usr/share/elasticsearch/logs/${HOSTNAME}
+	    data: /usr/share/elasticsearch/data/${HOSTNAME}
+	" > $read_dir/$x/rundir/config/$x.yml
+else
+	echo "[No file exist? What You Doin'! Forget about it!]"
+fi
 }
 
 make_logstash() {
@@ -57,8 +82,12 @@ singularity shell \\
 lcpdir=(config data modules piplines tools x-pack)
 cdir=/usr/share/logstash
 for i in "${lcpdir[@]}"; do
-	com="cp -rf $cdir/$i /temp"
-	singularity_cp
+	if [ -d "$read_dir/$x/rundir/$i" ]; then
+		echo "[$i Directory Already Exist]"
+	else
+		com="cp -rf $cdir/$i /temp"
+		singularity_cp
+	fi
 done
 }
 
@@ -80,8 +109,12 @@ singularity instance start \\
 kcpdir=(config data node_modules optimize)
 cdir=/usr/share/kibana
 for i in "${kcpdir[@]}"; do
-	com="cp -rf $cdir/$i /temp"
-	singularity_cp
+	if [ -d "$read_dir/$x/rundir/$i" ]; then
+		echo "[$i Directory Already Exist]"
+	else
+		com="cp -rf $cdir/$i /temp"
+		singularity_cp
+	fi
 done
 }
 
@@ -98,4 +131,7 @@ for x in ${ELK[*]}; do
 		singularity pull $read_dir/$x/$x.sif docker://$x:7.3.2
 	fi
 	make_$x
+	config_yml_$x
 done
+
+

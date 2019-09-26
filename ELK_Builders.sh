@@ -70,13 +70,16 @@ fi
 make_logstash() {
 echo "
 #!/bin/bash
+pwd=$(pwd)
+rundir=$pwd/rundir
+contdir=/usr/share/kibana
 singularity shell \\
-	-B ./rundir/config:/usr/share/logstash/config \\
-	-B ./rundir/modules:/usr/share/logstash/modules \\
-	-B ./rundir/data:/usr/share/logstash/data \\
-	-B ./rundir/pipeline:/usr/share/logstash/pipeline \\
-	-B ./rundir/tools:/usr/share/logstash/tools \\
-	-B ./rundir/x-pack:/usr/share/logstash/x-pack \\
+	-B $rundir/config:$contdir/config \\
+	-B $rundir/modules:$contdir/modules \\
+	-B $rundir/data:$contdir/data \\
+	-B $rundir/pipeline:$contdir/pipeline \\
+	-B $rundir/tools:$contdir/tools \\
+	-B $rundir/x-pack:$contdir/x-pack \\
 	./logstash_7.3.2.sif" > $read_dir/$x/run.sh
 
 lcpdir=(config data modules pipeline tools x-pack)

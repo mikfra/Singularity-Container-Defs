@@ -20,7 +20,7 @@ singularity_cp() {
 gdir=$read_dir/$x/rundir
 singularity exec \
 	-B $gdir:/temp \
-	$read_dir/$x/$x.sif $com
+	$read_dir/$x/${x}_7.3.2.sif $com
 
 }
 make_elasticsearch() {

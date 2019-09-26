@@ -33,7 +33,7 @@ singularity instance start \\
 	-B $rundir/config:$contdir/config \\
 	-B $rundir/data:$contdir/data \\
 	-B $rundir/logs:$contdir/logs \\
-	$pwd/es_7.2.0.sif elastic" > $read_dir/$x/run.sh
+	$pwd/es_7.3.2.sif elastic" > $read_dir/$x/run.sh
 
 ecpdir=(config data logs)
 cdir=/usr/share/elasticsearch
@@ -116,7 +116,7 @@ singularity instance start \\
 	-B $rundir/data:$contdir/data \\
 	-B $rundir/optimize:$contdir/optimize \\
 	-B $rundir/node_modules:$contdir/node_modules \\
-	$pwd/kib_7.2.0.sif kibana" > $read_dir/$x/run.sh
+	$pwd/kib_7.3.2.sif kibana" > $read_dir/$x/run.sh
 
 kcpdir=(config data node_modules optimize)
 cdir=/usr/share/kibana
@@ -154,6 +154,8 @@ for x in ${ELK[*]}; do
 		echo "[Pulling $x from DockerHub]"
 		singularity pull $read_dir/$x/${x}_7.3.2.sif docker://$x:7.3.2
 	fi
+	echo "Making the Directories for $x"
 	make_$x
+	echo "Making the Config files for $x"
 	config_yml_$x
 done

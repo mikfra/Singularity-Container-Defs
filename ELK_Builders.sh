@@ -67,8 +67,7 @@ if [ -f "$read_dir/elasticsearch/rundir/config/elasticsearch.yml" ]; then
     network.host: 0.0.0.0
     node.master: true
     node.name: "${HOSTNAME}_master"
-    cluster.initial_master_nodes:
-        - 0.0.0.0
+    discovery.type: single-node
     discovery.zen.minimum_master_nodes: 1
     discovery.zen.ping.unicast.hosts: ["0.0.0.0:9300"]
     path:
